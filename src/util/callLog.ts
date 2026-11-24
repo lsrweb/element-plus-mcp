@@ -1,14 +1,9 @@
 import fs from 'node:fs'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
+import { logsDir } from '../config.js'
 
-const logDir = path.resolve(
-  path.dirname(fileURLToPath(import.meta.url)),
-  '..',
-  '..',
-  'logs',
-)
+const logDir = logsDir
 const logFile = path.join(logDir, 'calls.jsonl')
 
 interface CallLogEntry {

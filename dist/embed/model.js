@@ -1,9 +1,7 @@
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-const here = path.dirname(fileURLToPath(import.meta.url));
-export const projectRoot = path.resolve(here, '..', '..');
-export const modelsDir = path.join(projectRoot, 'models');
-export const vectorsDir = path.join(projectRoot, '.vectors');
+import { dataHome } from '../config.js';
+export const modelsDir = process.env.ELEMENT_PLUS_MODELS_DIR ?? path.join(dataHome, 'models');
+export const vectorsDir = path.join(dataHome, '.vectors');
 export const DEFAULT_MODEL = 'Xenova/multilingual-e5-small';
 export function embeddingsEnabled() {
     return process.env.ELEMENT_PLUS_EMBEDDINGS !== 'off';

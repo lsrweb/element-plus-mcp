@@ -1,5 +1,5 @@
 {
-  "name": "element-plus-mcp",
+  "name": "@lsrweb/element-plus-mcp",
   "version": "0.2.0",
   "private": false,
   "type": "module",
@@ -7,8 +7,12 @@
   "license": "MIT",
   "repository": { "type": "git", "url": "git+https://github.com/lsrweb/element-plus-mcp.git" },
   "homepage": "https://github.com/lsrweb/element-plus-mcp#readme",
-  "keywords": ["mcp", "element-plus", "vue", "documentation"],
+  "keywords": ["mcp", "model-context-protocol", "element-plus", "vue", "documentation"],
   "engines": { "node": ">=20" },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "bin": {
     "element-plus-mcp": "./dist/index.js"
   },

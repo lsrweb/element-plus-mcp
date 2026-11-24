@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-const logDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'logs');
+import { logsDir } from '../config.js';
+const logDir = logsDir;
 const logFile = path.join(logDir, 'calls.jsonl');
 function appendEntry(entry) {
     try {

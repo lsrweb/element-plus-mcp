@@ -20,19 +20,23 @@ export function isDocsRoot(dir: string): boolean {
   return fs.existsSync(path.join(dir, 'en-US', 'component', 'button.md'))
 }
 
+/** Directory for runtime state: index caches, model cache, and the call log. */
+export const dataHome: string =
+  process.env.ELEMENT_PLUS_MCP_HOME || path.join(os.homedir(), '.element-plus-mcp')
+
+export const logsDir: string = path.join(dataHome, 'logs')
+
 /**
- * Candidate docs roots in priority order: explicit override, the installer
- * home, the per-user home, then a conventional local checkout.
+ * Candidate docs roots in priority order: explicit override, the install home,
+ * the per-user home, then a conventional local checkout.
  */
 function candidateRoots(): string[] {
   const list: string[] = []
   if (process.env.ELEMENT_PLUS_DOCS_ROOT) {
     list.push(process.env.ELEMENT_PLUS_DOCS_ROOT)
   }
-  const home = process.env.ELEMENT_PLUS_MCP_HOME
-  if (home) list.push(path.join(home, 'docs'))
-  const userHome = os.homedir()
-  if (userHome) list.push(path.join(userHome, '.element-plus-mcp', 'docs'))
+  list.push(path.join(dataHome, 'docs'))
+  list.push(path.join(os.homedir(), '.element-plus-mcp', 'docs'))
   list.push('E:/element-plus/docs')
   return list
 }

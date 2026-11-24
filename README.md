@@ -28,6 +28,16 @@ This project is not affiliated with the Element Plus project.
 
 ## Install
 
+Preferred, from npm (no Node build toolchain required):
+
+```bash
+npm install -g @lsrweb/element-plus-mcp
+# or run without installing:
+npx -y @lsrweb/element-plus-mcp
+```
+
+From source:
+
 ```bash
 git clone https://github.com/lsrweb/element-plus-mcp.git
 cd element-plus-mcp
@@ -49,9 +59,11 @@ The docs root is resolved in this order, and the first usable directory wins:
 
 A directory is usable only when `en-US/component/button.md` exists. If none matches, the server exits with the list of paths it tried. Use the checkout that matches the Element Plus version your project depends on; a fork with custom components should be indexed from that fork.
 
+Runtime state — the call log, the embedding model cache, and the vector index — is written under `ELEMENT_PLUS_MCP_HOME` (default `~/.element-plus-mcp`), not into the installed package.
+
 ## Register the server
 
-Any MCP client can start it over stdio. Replace `/abs/path` with this repository's location.
+Any MCP client can start it over stdio. Replace `/abs/path` with this repository's location; for an npm install use `"command": "npx", "args": ["-y", "@lsrweb/element-plus-mcp"]` in place of the `node` form below.
 
 Generic JSON (`mcpServers`), used by Claude Desktop, Claude Code project config, Cline, and many other clients:
 
@@ -95,16 +107,26 @@ claude mcp add --scope user element-plus -- node /abs/path/element-plus-mcp/dist
 | Variable | Default | Meaning |
 |---|---|---|
 | `ELEMENT_PLUS_DOCS_ROOT` | resolved as above | Documentation checkout to index. |
-| `ELEMENT_PLUS_MCP_HOME` | unset | Installer home; its `docs` child participates in docs-root resolution. |
+| `ELEMENT_PLUS_MCP_HOME` | `~/.element-plus-mcp` | Runtime state: call log, model cache, vector index, provisioned docs. |
 | `ELEMENT_PLUS_EMBEDDINGS` | enabled | Set to `off` to skip local embeddings and load no model. |
 | `ELEMENT_PLUS_EMBED_MODEL` | `Xenova/multilingual-e5-small` | Embedding model when embeddings are enabled. |
+| `ELEMENT_PLUS_MODELS_DIR` | `$ELEMENT_PLUS_MCP_HOME/models` | Where embedding models are cached. |
 
 ## Behaviour and privacy
 
 - The MCP protocol uses stdout; all diagnostics use stderr, so run it with stdio transport only.
-- Every tool call is appended as JSON Lines to `logs/calls.jsonl` inside this repository. Send documentation queries, not secrets, credentials, or real user data.
-- With embeddings enabled the server downloads a model on first use into `models/`. The model is optional; the server falls back to keyword search when it is unavailable.
-- `models/`, `.vectors/`, and `logs/` are runtime state and are not tracked.
+- Every tool call is appended as JSON Lines to `$ELEMENT_PLUS_MCP_HOME/logs/calls.jsonl` (`~/.element-plus-mcp/logs/calls.jsonl` by default). Send documentation queries, not secrets, credentials, or real user data.
+- With embeddings enabled the server downloads a model on first use into the model cache. The model is optional; the server falls back to keyword search when it is unavailable.
+
+## Publishing
+
+Releases are published to npm from `package.json`:
+
+```bash
+npm publish
+```
+
+`publishConfig` pins `access: public` and the public npm registry, and `prepack` rebuilds `dist/` before packing. Bump `version` first, then commit and tag the release so the published tarball and the repository agree.
 
 ## License
 
