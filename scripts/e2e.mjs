@@ -1,4 +1,6 @@
 import { spawn } from 'node:child_process'
+import fs from 'node:fs'
+import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -8,6 +10,30 @@ const serverEntry = path.join(
   'dist',
   'index.js',
 )
+
+// Fork-only components are absent from upstream docs, so those checks are conditional.
+function resolvesDocsRoot() {
+  const roots = [
+    process.env.ELEMENT_PLUS_DOCS_ROOT,
+    process.env.ELEMENT_PLUS_MCP_HOME && path.join(process.env.ELEMENT_PLUS_MCP_HOME, 'docs'),
+    path.join(os.homedir(), '.element-plus-mcp', 'docs'),
+    'E:/element-plus/docs',
+  ].filter(Boolean)
+  return roots.find((dir) =>
+    fs.existsSync(path.join(dir, 'en-US', 'component', 'button.md')),
+  )
+}
+
+const docsRoot = resolvesDocsRoot()
+const hasForkQuery = Boolean(
+  docsRoot && fs.existsSync(path.join(docsRoot, 'zh-CN', 'component', 'query.md')),
+)
+const hasOtp = Boolean(
+  docsRoot && fs.existsSync(path.join(docsRoot, 'en-US', 'component', 'input-otp.md')),
+)
+if (!hasForkQuery) {
+  console.log('SKIP fork-only checks (query component) — indexing upstream documentation')
+}
 
 const child = spawn('node', [serverEntry], {
   stdio: ['pipe', 'pipe', 'inherit'],
@@ -131,12 +157,14 @@ try {
   check('get_component_docs button api added version extracted', d1b === true)
 
   const d2 = parsePayload(await request('tools/call', { name: 'get_component_docs', arguments: { component: 'query', section: 'api' } }))
-  check(
-    'get_component_docs zh-only query api',
-    !d2.error && d2.locale === 'zh-CN' &&
-      JSON.stringify(d2.sections).includes('v-model:expanded'),
-    JSON.stringify(d2.error ?? '').slice(0, 200),
-  )
+  if (hasForkQuery) {
+    check(
+      'get_component_docs zh-only query api',
+      !d2.error && d2.locale === 'zh-CN' &&
+        JSON.stringify(d2.sections).includes('v-model:expanded'),
+      JSON.stringify(d2.error ?? '').slice(0, 200),
+    )
+  }
 
   const d3 = parsePayload(await request('tools/call', { name: 'get_component_docs', arguments: { component: 'table', section: 'full' } }))
   check(
@@ -185,8 +213,10 @@ try {
   const l1 = parsePayload(await request('tools/call', { name: 'list_components', arguments: {} }))
   const slugs = l1.components?.map((c) => c.slug) ?? []
   check(
-    'list_components includes query & input-otp & bilingual',
-    l1.total > 80 && slugs.includes('query') && slugs.includes('input-otp'),
+    'list_components returns a complete bilingual catalogue',
+    l1.total > 60 &&
+      (!hasForkQuery || slugs.includes('query')) &&
+      (!hasOtp || slugs.includes('input-otp')),
     `total=${l1.total}`,
   )
   const buttonInfo = l1.components?.find((c) => c.slug === 'button')

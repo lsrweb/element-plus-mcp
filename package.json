@@ -1,21 +1,30 @@
 {
   "name": "element-plus-mcp",
-  "version": "0.1.0",
-  "private": true,
+  "version": "0.2.0",
+  "private": false,
   "type": "module",
-  "description": "Local AI knowledge base MCP server indexing Element Plus docs from disk",
+  "description": "MCP server that searches Element Plus component docs, guides and Vue examples from a local documentation checkout",
+  "license": "MIT",
+  "repository": { "type": "git", "url": "git+https://github.com/lsrweb/element-plus-mcp.git" },
+  "homepage": "https://github.com/lsrweb/element-plus-mcp#readme",
+  "keywords": ["mcp", "element-plus", "vue", "documentation"],
+  "engines": { "node": ">=20" },
   "bin": {
     "element-plus-mcp": "./dist/index.js"
   },
+  "files": ["dist", "README.md", "LICENSE"],
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
-    "e2e": "node scripts/e2e.mjs"
+    "e2e": "node scripts/e2e.mjs",
+    "prepack": "pnpm run build"
   },
   "dependencies": {
-    "@huggingface/transformers": "^3.0.0",
-    "@modelcontextprotocol/sdk": "^1.17.0",
-    "zod": "^4.0.0"
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "zod": "^4.5.4"
+  },
+  "optionalDependencies": {
+    "@huggingface/transformers": "^3.0.0"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

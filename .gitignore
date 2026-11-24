@@ -1,6 +1,6 @@
 node_modules/
-dist/
 models/
 .vectors/
 logs/
 *.log
+*.tsbuildinfo
